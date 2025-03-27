@@ -50,6 +50,8 @@ class NotesApp extends HTMLElement {
     const listContainer = this.shadowRoot.querySelector(".note-list");
     listContainer.innerHTML = "";
 
+    notes.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
     notes.forEach((note) => {
       const noteItem = document.createElement("note-item");
       noteItem.setAttribute("title", note.title);
