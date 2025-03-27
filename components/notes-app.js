@@ -9,6 +9,30 @@ class NotesApp extends HTMLElement {
   connectedCallback() {
     this.render();
     this.loadNotes();
+    this.setupValidation();
+  }
+
+  setupValidation() {
+    const titleInput = this.shadowRoot.querySelector("#title");
+    const bodyInput = this.shadowRoot.querySelector("#body");
+    const titleError = this.shadowRoot.querySelector("#title-error");
+    const bodyError = this.shadowRoot.querySelector("#body-error");
+
+    const validateInput = (input, errorElement, minLength) => {
+      input.addEventListener("input", () => {
+        if (input.value.length < minLength) {
+          input.classList.add("error");
+          errorElement.classList.add("show");
+          errorElement.textContent = `Minimal ${minLength} karakter`;
+        } else {
+          input.classList.remove("error");
+          errorElement.classList.remove("show");
+        }
+      });
+    };
+
+    validateInput(titleInput, titleError, 5);
+    validateInput(bodyInput, bodyError, 10);
   }
 
   async loadNotes() {
@@ -16,7 +40,6 @@ class NotesApp extends HTMLElement {
 
     if (notes.length === 0) {
       notes = await fetchNotes();
-
       saveNotes(notes);
     }
 
@@ -69,12 +92,21 @@ class NotesApp extends HTMLElement {
     this.shadowRoot.innerHTML = `
         <link rel="stylesheet" href="style.css">
         
-        <form id="note-form">
-            <input type="text" id="title" placeholder="Judul Catatan" required>
-            <textarea id="body" placeholder="Isi Catatan" required></textarea>
-            <button type="submit">Tambah Catatan</button>
-        </form>
-        <div class="note-list"></div>
+        <h1 class="app-title">My Notes</h1>
+        
+        <div class="notes-container">
+          <form id="note-form">
+              <input type="text" id="title" placeholder="Judul Catatan" required>
+              <div id="title-error" class="error-message"></div>
+              
+              <textarea id="body" placeholder="Isi Catatan" required></textarea>
+              <div id="body-error" class="error-message"></div>
+              
+              <button type="submit">Tambah Catatan</button>
+          </form>
+          
+          <div class="note-list"></div>
+        </div>
     `;
 
     this.shadowRoot
